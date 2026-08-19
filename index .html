@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#111">
+<title>Boss DD-3 Premium</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Roboto+Condensed:wght@400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0c0c0c;min-height:100vh;display:flex;flex-direction:column;align-items:center;font-family:'Roboto Condensed',sans-serif;color:#ccc;padding:14px;padding-bottom:30px}
+  h1{font-family:'Orbitron',sans-serif;font-size:15px;letter-spacing:2px;color:#eee;margin:6px 0 2px}
+  .sub{font-size:11px;color:#666;margin-bottom:12px}
+  .pedal{width:300px;background:linear-gradient(165deg,#2a2a2a,#151515);border-radius:12px;border:1px solid #333;box-shadow:0 14px 36px rgba(0,0,0,.7);padding:12px 10px 14px}
+  .brand{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:700;letter-spacing:3px;text-align:center}
+  .model{font-size:10px;color:#aaa;text-align:center;letter-spacing:1px;margin-bottom:8px}
+  .led-row{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px}
+  .led{width:10px;height:10px;border-radius:50%;background:#1a1a1a;transition:.15s}
+  .led.on{background:#ff2a2a;box-shadow:0 0 8px #ff2a2a}
+  .sec{margin:9px 0 4px;font-size:9px;color:#777;letter-spacing:1px;text-align:center}
+  .knobs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 12px}
+  .kg{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .kl{font-size:8px;color:#999}
+  .knob{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a4a4a,#1a1a1a);border:2px solid #444;position:relative;cursor:grab;touch-action:none}
+  .ptr{position:absolute;top:3px;left:50%;width:2.5px;height:11px;background:#eee;border-radius:1px;transform-origin:bottom center;transform:translateX(-50%)}
+  .kv{font-size:8px;color:#bbb}
+  .modes{display:flex;background:#111;border-radius:5px;padding:2px;border:1px solid #333;margin-top:5px}
+  .mb{flex:1;padding:5px 1px;font-size:8px;background:transparent;border:none;color:#777;cursor:pointer;border-radius:3px;font-family:inherit}
+  .mb.active{background:#333;color:#fff}
+
+  /* Premium vertical fader for Master */
+  .fader-wrap{display:flex;flex-direction:column;align-items:center;margin:10px 0 4px}
+  .fader-label{font-size:9px;color:#aaa;letter-spacing:1px;margin-bottom:4px}
+  .fader-track{
+    width:18px;height:90px;background:#111;border-radius:9px;border:1px solid #333;
+    position:relative;cursor:ns-resize;touch-action:none;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.6);
+  }
+  .fader-fill{
+    position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#0a5,#0f8);
+    border-radius:0 0 8px 8px;height:70%;
+  }
+  .fader-thumb{
+    position:absolute;left:50%;width:26px;height:14px;background:linear-gradient(#555,#333);
+    border:1px solid #777;border-radius:3px;transform:translateX(-50%);
+    bottom:calc(70% - 7px);box-shadow:0 2px 4px rgba(0,0,0,.5);
+  }
+  .fader-value{font-size:9px;color:#0f8;margin-top:3px}
+
+  .foot{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3a3a3a,#111);border:3px solid #444;margin:9px auto 3px;cursor:pointer}
+  .foot:active{transform:scale(.96)}
+  .fsl{font-size:8px;color:#666;text-align:center}
+  .status{font-size:11px;color:#555;margin:8px 0;text-align:center}
+  .status span{color:#0f8}
+  .ctrls{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:320px;margin-top:5px}
+  .btn{background:#1a1a1a;border:1px solid #333;color:#ccc;padding:7px 11px;font-size:10px;border-radius:5px;cursor:pointer;font-family:inherit}
+  .btn.active{background:#0a3a2a;border-color:#0f8;color:#0f8}
+  .btn.rec{border-color:#a33;color:#f88}
+  .btn.rec.on{background:#4a1515;border-color:#f33;color:#f33}
+  .btn:disabled{opacity:.35;pointer-events:none}
+  .info{font-size:10px;color:#555;text-align:center;margin-top:10px;max-width:280px;line-height:1.4}
+</style>
+</head>
+<body>
+  <h1>BOSS DD-3 PREMIUM</h1>
+  <div class="sub">Delay + Gate + EQ + Warmth + Soft Reverb</div>
+
+  <div class="pedal">
+    <div class="brand">BOSS</div>
+    <div class="model">DD-3 + PREMIUM AMP</div>
+    <div class="led-row"><div class="led" id="led"></div><span style="font-size:8px;color:#777">CHECK</span></div>
+
+    <div class="sec">DELAY</div>
+    <div class="knobs">
+      <div class="kg"><div class="kl">LEVEL</div><div class="knob" data-p="level" data-min="0" data-max="1" data-v="0.55"><div class="ptr"></div></div><div class="kv" id="v-level">55%</div></div>
+      <div class="kg"><div class="kl">F.BACK</div><div class="knob" data-p="feedback" data-min="0" data-max="0.75" data-v="0.32"><div class="ptr"></div></div><div class="kv" id="v-feedback">32%</div></div>
+      <div class="kg"><div class="kl">TIME</div><div class="knob" data-p="time" data-min="0.05" data-max="1" data-v="0.3"><div class="ptr"></div></div><div class="kv" id="v-time">240ms</div></div>
+    </div>
+    <div class="modes">
+      <button class="mb" data-m="50">50</button>
+      <button class="mb" data-m="200">200</button>
+      <button class="mb active" data-m="800">800</button>
+      <button class="mb" data-m="hold">HOLD</button>
+    </div>
+
+    <div class="sec">GATE + EQ</div>
+    <div class="knobs">
+      <div class="kg"><div class="kl">GATE</div><div class="knob" data-p="gate" data-min="0" data-max="0.25" data-v="0.03"><div class="ptr"></div></div><div class="kv" id="v-gate">3%</div></div>
+      <div class="kg"><div class="kl">LOW</div><div class="knob" data-p="low" data-min="-12" data-max="10" data-v="1"><div class="ptr"></div></div><div class="kv" id="v-low">+1dB</div></div>
+      <div class="kg"><div class="kl">HIGH</div><div class="knob" data-p="high" data-min="-12" data-max="10" data-v="0"><div class="ptr"></div></div><div class="kv" id="v-high">0dB</div></div>
+    </div>
+
+    <div class="sec">WARMTH + REVERB</div>
+    <div class="knobs">
+      <div class="kg"><div class="kl">WARM</div><div class="knob" data-p="warm" data-min="0" data-max="0.7" data-v="0.18"><div class="ptr"></div></div><div class="kv" id="v-warm">18%</div></div>
+      <div class="kg"><div class="kl">REVERB</div><div class="knob" data-p="reverb" data-min="0" data-max="0.7" data-v="0.28"><div class="ptr"></div></div><div class="kv" id="v-reverb">28%</div></div>
+    </div>
+
+    <!-- Premium vertical Master fader -->
+    <div class="fader-wrap">
+      <div class="fader-label">MASTER</div>
+      <div class="fader-track" id="masterFader">
+        <div class="fader-fill" id="masterFill"></div>
+        <div class="fader-thumb" id="masterThumb"></div>
+      </div>
+      <div class="fader-value" id="v-master">85%</div>
+    </div>
+
+    <div class="foot" id="foot"></div>
+    <div class="fsl">ON / OFF</div>
+  </div>
+
+  <div class="status">Status: <span id="st">BYPASS</span> | Input: <span id="inp">None</span></div>
+
+  <div class="ctrls">
+    <label class="btn" id="btnFile">Load Audio<input type="file" id="file" accept="audio/*" hidden></label>
+    <button class="btn" id="btnMic">Mic</button>
+    <button class="btn" id="btnStop">Stop</button>
+  </div>
+  <div class="ctrls">
+    <button class="btn rec" id="btnRec">● Record</button>
+    <button class="btn" id="btnDl" disabled>Download</button>
+  </div>
+  <div class="info">Premium vertical Master fader • Clean sound</div>
+
+<script>
+(() => {
+  let ctx, N = {}, src=null, mic=null, buf=null, eng=false, mode='800';
+  let rec=false, chunks=[], blob=null, mr=null, dest=null;
+  const p = {level:0.55,feedback:0.32,time:0.3,gate:0.03,low:1,high:0,warm:0.18,reverb:0.28,master:0.85};
+  const mMax = {'50':0.05,'200':0.2,'800':0.8,'hold':0.8};
+
+  function init(){
+    if(ctx) return;
+    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const input = ctx.createGain();
+    const gate = ctx.createDynamicsCompressor();
+    gate.threshold.value=-42; gate.knee.value=8; gate.ratio.value=10;
+    gate.attack.value=0.002; gate.release.value=0.12;
+    const low = ctx.createBiquadFilter(); low.type='lowshelf'; low.frequency.value=220;
+    const high = ctx.createBiquadFilter(); high.type='highshelf'; high.frequency.value=4200;
+    const warm = ctx.createWaveShaper();
+    function setWarm(a){ const n=128,c=new Float32Array(n); for(let i=0;i<n;i++){const x=i*2/n-1;c[i]=Math.tanh(x*(1+a*1.8));} warm.curve=c; warm.oversample='2x'; }
+    setWarm(p.warm);
+    const delay = ctx.createDelay(1.0);
+    const fb = ctx.createGain();
+    const dWet = ctx.createGain();
+    const dry = ctx.createGain();
+    const r1 = ctx.createDelay(0.4); r1.delayTime.value=0.027;
+    const r2 = ctx.createDelay(0.4); r2.delayTime.value=0.033;
+    const rFb = ctx.createGain(); rFb.gain.value=0.38;
+    const rDamp = ctx.createBiquadFilter(); rDamp.type='lowpass'; rDamp.frequency.value=2800;
+    const rWet = ctx.createGain();
+    const master = ctx.createGain();
+    dest = ctx.createMediaStreamDestination();
+
+    input.connect(gate); gate.connect(low); low.connect(high); high.connect(warm);
+    warm.connect(dry); warm.connect(delay); delay.connect(fb); fb.connect(delay); delay.connect(dWet);
+    dWet.connect(r1); r1.connect(rDamp); rDamp.connect(r2); r2.connect(rFb); rFb.connect(r1); r2.connect(rWet);
+    dry.connect(master); dWet.connect(master); rWet.connect(master);
+    master.connect(ctx.destination); master.connect(dest);
+    N = {input,gate,low,high,warm,setWarm,delay,fb,dWet,dry,rWet,master};
+    update();
+  }
+
+  function update(){
+    if(!ctx) return;
+    const dt = Math.max(0.012, p.time*(mMax[mode]||0.8));
+    N.delay.delayTime.setTargetAtTime(dt,ctx.currentTime,0.008);
+    N.fb.gain.setTargetAtTime(p.feedback,ctx.currentTime,0.008);
+    N.dWet.gain.setTargetAtTime(eng?p.level:0,ctx.currentTime,0.008);
+    N.dry.gain.setTargetAtTime(eng?0.82:1,ctx.currentTime,0.008);
+    N.rWet.gain.setTargetAtTime(eng?p.reverb*0.45:0,ctx.currentTime,0.008);
+    N.low.gain.setTargetAtTime(p.low,ctx.currentTime,0.008);
+    N.high.gain.setTargetAtTime(p.high,ctx.currentTime,0.008);
+    N.master.gain.setTargetAtTime(p.master,ctx.currentTime,0.008);
+    N.setWarm(p.warm);
+    N.gate.threshold.setTargetAtTime(-48+p.gate*70,ctx.currentTime,0.01);
+
+    document.getElementById('v-level').textContent=Math.round(p.level*100)+'%';
+    document.getElementById('v-feedback').textContent=Math.round(p.feedback*100)+'%';
+    document.getElementById('v-time').textContent=Math.round(dt*1000)+'ms';
+    document.getElementById('v-gate').textContent=Math.round(p.gate*100)+'%';
+    document.getElementById('v-low').textContent=(p.low>=0?'+':'')+Math.round(p.low)+'dB';
+    document.getElementById('v-high').textContent=(p.high>=0?'+':'')+Math.round(p.high)+'dB';
+    document.getElementById('v-warm').textContent=Math.round(p.warm*100)+'%';
+    document.getElementById('v-reverb').textContent=Math.round(p.reverb*100)+'%';
+    document.getElementById('v-master').textContent=Math.round(p.master*100)+'%';
+
+    // update fader visual
+    const pct = Math.min(1,Math.max(0,p.master/1.3));
+    document.getElementById('masterFill').style.height = (pct*100)+'%';
+    document.getElementById('masterThumb').style.bottom = `calc(${pct*100}% - 7px)`;
+  }
+
+  function setEng(v){ eng=v; document.getElementById('led').classList.toggle('on',v); document.getElementById('st').textContent=v?'ENGAGED':'BYPASS'; update(); }
+
+  function stop(){ if(buf){try{buf.stop()}catch(e){}buf=null;} if(mic){mic.getTracks().forEach(t=>t.stop());mic=null;} if(src){try{src.disconnect()}catch(e){}src=null;} }
+
+  async function loadFile(f){
+    if(!f)return; stop(); init(); if(ctx.state==='suspended')await ctx.resume();
+    try{ const ab=await f.arrayBuffer(); const b=await ctx.decodeAudioData(ab);
+      buf=ctx.createBufferSource(); buf.buffer=b; buf.loop=true; buf.connect(N.input); buf.start();
+      document.getElementById('inp').textContent=f.name.slice(0,15)+(f.name.length>15?'…':'');
+      document.getElementById('btnFile').classList.add('active'); document.getElementById('btnMic').classList.remove('active');
+    }catch(e){alert('File load nahi hua');}
+  }
+
+  async function startMic(){
+    stop(); init(); if(ctx.state==='suspended')await ctx.resume();
+    try{ mic=await navigator.mediaDevices.getUserMedia({audio:true});
+      src=ctx.createMediaStreamSource(mic); src.connect(N.input);
+      document.getElementById('inp').textContent='Microphone';
+      document.getElementById('btnMic').classList.add('active'); document.getElementById('btnFile').classList.remove('active');
+    }catch(e){alert('Mic access nahi mila');}
+  }
+
+  // rotary knobs
+  let act=null,sy=0,sv=0;
+  document.querySelectorAll('.knob').forEach(k=>{
+    const ptr=k.querySelector('.ptr'); const min=+k.dataset.min,max=+k.dataset.max,val=+k.dataset.v;
+    function rot(v){ptr.style.transform=`translateX(-50%) rotate(${-135+(v-min)/(max-min)*270}deg)`} rot(val);
+    function st(e){e.preventDefault();act=k;sy=e.touches?e.touches[0].clientY:e.clientY;sv=+k.dataset.v;
+      document.addEventListener('mousemove',mv);document.addEventListener('mouseup',en);
+      document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',en);}
+    function mv(e){if(!act)return;e.preventDefault(); const y=e.touches?e.touches[0].clientY:e.clientY;
+      let v=Math.min(max,Math.max(min,sv+(sy-y)/100*(max-min))); act.dataset.v=v; p[act.dataset.p]=v; rot(v); update();}
+    function en(){act=null;document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',en);
+      document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',en);}
+    k.addEventListener('mousedown',st); k.addEventListener('touchstart',st,{passive:false});
+  });
+
+  // vertical Master fader
+  const track = document.getElementById('masterFader');
+  let fAct=false;
+  function faderMove(clientY){
+    const rect = track.getBoundingClientRect();
+    let pct = 1 - (clientY - rect.top) / rect.height;
+    pct = Math.min(1, Math.max(0, pct));
+    p.master = pct * 1.3;
+    update();
+  }
+  track.addEventListener('mousedown', e=>{ fAct=true; faderMove(e.clientY); });
+  track.addEventListener('touchstart', e=>{ fAct=true; faderMove(e.touches[0].clientY); }, {passive:false});
+  document.addEventListener('mousemove', e=>{ if(fAct) faderMove(e.clientY); });
+  document.addEventListener('touchmove', e=>{ if(fAct){ e.preventDefault(); faderMove(e.touches[0].clientY); } }, {passive:false});
+  document.addEventListener('mouseup', ()=> fAct=false);
+  document.addEventListener('touchend', ()=> fAct=false);
+
+  document.querySelectorAll('.mb').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');mode=b.dataset.m;update();};
+  });
+  document.getElementById('foot').onclick=()=>setEng(!eng);
+
+  function startRec(){
+    if(!dest){alert('Pehle Mic/Audio start karo');return;}
+    chunks=[]; blob=null;
+    try{mr=new MediaRecorder(dest.stream,{mimeType:MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});}
+    catch(e){mr=new MediaRecorder(dest.stream);}
+    mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+    mr.onstop=()=>{blob=new Blob(chunks,{type:'audio/webm'});document.getElementById('btnDl').disabled=false;
+      document.getElementById('btnRec').textContent='● Record';document.getElementById('btnRec').classList.remove('on');rec=false;};
+    mr.start(100);rec=true;
+    document.getElementById('btnRec').textContent='■ Stop';document.getElementById('btnRec').classList.add('on');
+    document.getElementById('btnDl').disabled=true;
+  }
+  function stopRec(){if(mr&&rec)mr.stop();}
+  function dl(){if(!blob)return;const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='dd3-premium-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(u);}
+
+  document.getElementById('file').onchange=e=>{if(e.target.files[0])loadFile(e.target.files[0]);};
+  document.getElementById('btnMic').onclick=startMic;
+  document.getElementById('btnStop').onclick=()=>{stop();if(rec)stopRec();setEng(false);
+    document.getElementById('btnFile').classList.remove('active');document.getElementById('btnMic').classList.remove('active');
+    document.getElementById('inp').textContent='None';};
+  document.getElementById('btnRec').onclick=()=>rec?stopRec():startRec();
+  document.getElementById('btnDl').onclick=dl;
+})();
+</script>
+</body>
+</html>
