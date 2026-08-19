@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#111">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Boss DD-3 Premium</title>
+<link rel="manifest" href="manifest.webmanifest">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Roboto+Condensed:wght@400;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
@@ -27,26 +31,12 @@
   .modes{display:flex;background:#111;border-radius:5px;padding:2px;border:1px solid #333;margin-top:5px}
   .mb{flex:1;padding:5px 1px;font-size:8px;background:transparent;border:none;color:#777;cursor:pointer;border-radius:3px;font-family:inherit}
   .mb.active{background:#333;color:#fff}
-
-  /* Premium vertical fader for Master */
   .fader-wrap{display:flex;flex-direction:column;align-items:center;margin:10px 0 4px}
   .fader-label{font-size:9px;color:#aaa;letter-spacing:1px;margin-bottom:4px}
-  .fader-track{
-    width:18px;height:90px;background:#111;border-radius:9px;border:1px solid #333;
-    position:relative;cursor:ns-resize;touch-action:none;
-    box-shadow:inset 0 2px 6px rgba(0,0,0,.6);
-  }
-  .fader-fill{
-    position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#0a5,#0f8);
-    border-radius:0 0 8px 8px;height:70%;
-  }
-  .fader-thumb{
-    position:absolute;left:50%;width:26px;height:14px;background:linear-gradient(#555,#333);
-    border:1px solid #777;border-radius:3px;transform:translateX(-50%);
-    bottom:calc(70% - 7px);box-shadow:0 2px 4px rgba(0,0,0,.5);
-  }
+  .fader-track{width:18px;height:90px;background:#111;border-radius:9px;border:1px solid #333;position:relative;cursor:ns-resize;touch-action:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.6)}
+  .fader-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#0a5,#0f8);border-radius:0 0 8px 8px;height:70%}
+  .fader-thumb{position:absolute;left:50%;width:26px;height:14px;background:linear-gradient(#555,#333);border:1px solid #777;border-radius:3px;transform:translateX(-50%);bottom:calc(70% - 7px);box-shadow:0 2px 4px rgba(0,0,0,.5)}
   .fader-value{font-size:9px;color:#0f8;margin-top:3px}
-
   .foot{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3a3a3a,#111);border:3px solid #444;margin:9px auto 3px;cursor:pointer}
   .foot:active{transform:scale(.96)}
   .fsl{font-size:8px;color:#666;text-align:center}
@@ -96,7 +86,6 @@
       <div class="kg"><div class="kl">REVERB</div><div class="knob" data-p="reverb" data-min="0" data-max="0.7" data-v="0.28"><div class="ptr"></div></div><div class="kv" id="v-reverb">28%</div></div>
     </div>
 
-    <!-- Premium vertical Master fader -->
     <div class="fader-wrap">
       <div class="fader-label">MASTER</div>
       <div class="fader-track" id="masterFader">
@@ -121,10 +110,15 @@
     <button class="btn rec" id="btnRec">● Record</button>
     <button class="btn" id="btnDl" disabled>Download</button>
   </div>
-  <div class="info">Premium vertical Master fader • Clean sound</div>
+  <div class="info">Install ke liye browser menu se “Add to Home Screen” / “Install” choose karo</div>
 
 <script>
 (() => {
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error', err));
+  }
+
   let ctx, N = {}, src=null, mic=null, buf=null, eng=false, mode='800';
   let rec=false, chunks=[], blob=null, mr=null, dest=null;
   const p = {level:0.55,feedback:0.32,time:0.3,gate:0.03,low:1,high:0,warm:0.18,reverb:0.28,master:0.85};
@@ -187,14 +181,12 @@
     document.getElementById('v-reverb').textContent=Math.round(p.reverb*100)+'%';
     document.getElementById('v-master').textContent=Math.round(p.master*100)+'%';
 
-    // update fader visual
     const pct = Math.min(1,Math.max(0,p.master/1.3));
     document.getElementById('masterFill').style.height = (pct*100)+'%';
     document.getElementById('masterThumb').style.bottom = `calc(${pct*100}% - 7px)`;
   }
 
   function setEng(v){ eng=v; document.getElementById('led').classList.toggle('on',v); document.getElementById('st').textContent=v?'ENGAGED':'BYPASS'; update(); }
-
   function stop(){ if(buf){try{buf.stop()}catch(e){}buf=null;} if(mic){mic.getTracks().forEach(t=>t.stop());mic=null;} if(src){try{src.disconnect()}catch(e){}src=null;} }
 
   async function loadFile(f){
@@ -215,7 +207,6 @@
     }catch(e){alert('Mic access nahi mila');}
   }
 
-  // rotary knobs
   let act=null,sy=0,sv=0;
   document.querySelectorAll('.knob').forEach(k=>{
     const ptr=k.querySelector('.ptr'); const min=+k.dataset.min,max=+k.dataset.max,val=+k.dataset.v;
@@ -230,7 +221,6 @@
     k.addEventListener('mousedown',st); k.addEventListener('touchstart',st,{passive:false});
   });
 
-  // vertical Master fader
   const track = document.getElementById('masterFader');
   let fAct=false;
   function faderMove(clientY){
@@ -265,7 +255,7 @@
     document.getElementById('btnDl').disabled=true;
   }
   function stopRec(){if(mr&&rec)mr.stop();}
-  function dl(){if(!blob)return;const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='dd3-premium-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(u);}
+  function dl(){if(!blob)return;const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='dd3-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(u);}
 
   document.getElementById('file').onchange=e=>{if(e.target.files[0])loadFile(e.target.files[0]);};
   document.getElementById('btnMic').onclick=startMic;
