@@ -103,14 +103,14 @@
 
   <div class="ctrls">
     <label class="btn" id="btnFile">Load Audio<input type="file" id="file" accept="audio/*" hidden></label>
-    <button class="btn" id="btnMic">Mic</button>
+    <button class="btn" id="btnMic">Mic</button><button class="btn" id="btnLive">Live Monitor</button>
     <button class="btn" id="btnStop">Stop</button>
   </div>
   <div class="ctrls">
     <button class="btn rec" id="btnRec">● Record</button>
     <button class="btn" id="btnDl" disabled>Download</button>
   </div>
-  <div class="info">Install ke liye browser menu se “Add to Home Screen” / “Install” choose karo</div>
+  <div class="info">LIVE MONITOR: headphones/speaker use karo. Mic aur speaker ko paas rakhne se feedback aa sakta hai.</div>
 
 <script>
 (() => {
@@ -126,7 +126,9 @@
 
   function init(){
     if(ctx) return;
-    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    ctx = new (window.AudioContext||window.webkitAudioContext)({
+      latencyHint: 'interactive'
+    });
     const input = ctx.createGain();
     const gate = ctx.createDynamicsCompressor();
     gate.threshold.value=-42; gate.knee.value=8; gate.ratio.value=10;
@@ -160,14 +162,14 @@
   function update(){
     if(!ctx) return;
     const dt = Math.max(0.012, p.time*(mMax[mode]||0.8));
-    N.delay.delayTime.setTargetAtTime(dt,ctx.currentTime,0.008);
-    N.fb.gain.setTargetAtTime(p.feedback,ctx.currentTime,0.008);
-    N.dWet.gain.setTargetAtTime(eng?p.level:0,ctx.currentTime,0.008);
-    N.dry.gain.setTargetAtTime(eng?0.82:1,ctx.currentTime,0.008);
-    N.rWet.gain.setTargetAtTime(eng?p.reverb*0.45:0,ctx.currentTime,0.008);
-    N.low.gain.setTargetAtTime(p.low,ctx.currentTime,0.008);
-    N.high.gain.setTargetAtTime(p.high,ctx.currentTime,0.008);
-    N.master.gain.setTargetAtTime(p.master,ctx.currentTime,0.008);
+    N.delay.delayTime.setTargetAtTime(dt,ctx.currentTime,0.003);
+    N.fb.gain.setTargetAtTime(p.feedback,ctx.currentTime,0.003);
+    N.dWet.gain.setTargetAtTime(eng?p.level:0,ctx.currentTime,0.003);
+    N.dry.gain.setTargetAtTime(eng?0.92:1,ctx.currentTime,0.003);
+    N.rWet.gain.setTargetAtTime(eng?p.reverb*0.45:0,ctx.currentTime,0.003);
+    N.low.gain.setTargetAtTime(p.low,ctx.currentTime,0.003);
+    N.high.gain.setTargetAtTime(p.high,ctx.currentTime,0.003);
+    N.master.gain.setTargetAtTime(p.master,ctx.currentTime,0.003);
     N.setWarm(p.warm);
     N.gate.threshold.setTargetAtTime(-48+p.gate*70,ctx.currentTime,0.01);
 
@@ -199,12 +201,24 @@
   }
 
   async function startMic(){
-    stop(); init(); if(ctx.state==='suspended')await ctx.resume();
-    try{ mic=await navigator.mediaDevices.getUserMedia({audio:true});
-      src=ctx.createMediaStreamSource(mic); src.connect(N.input);
+    stop(); init();
+    if(ctx.state!=='running') await ctx.resume();
+    try{
+      mic=await navigator.mediaDevices.getUserMedia({
+        audio:{
+          echoCancellation:false,
+          noiseSuppression:false,
+          autoGainControl:false,
+          channelCount:1
+        },
+        video:false
+      });
+      src=ctx.createMediaStreamSource(mic);
+      src.connect(N.input);
       document.getElementById('inp').textContent='Microphone';
-      document.getElementById('btnMic').classList.add('active'); document.getElementById('btnFile').classList.remove('active');
-    }catch(e){alert('Mic access nahi mila');}
+      document.getElementById('btnMic').classList.add('active');
+      document.getElementById('btnFile').classList.remove('active');
+    }catch(e){alert('Mic access nahi mila. Browser microphone permission allow karo.');}
   }
 
   let act=null,sy=0,sv=0;
@@ -259,6 +273,7 @@
 
   document.getElementById('file').onchange=e=>{if(e.target.files[0])loadFile(e.target.files[0]);};
   document.getElementById('btnMic').onclick=startMic;
+  document.getElementById('btnLive').onclick=async()=>{await startMic();setEng(true);if(ctx.state!=='running')await ctx.resume();};
   document.getElementById('btnStop').onclick=()=>{stop();if(rec)stopRec();setEng(false);
     document.getElementById('btnFile').classList.remove('active');document.getElementById('btnMic').classList.remove('active');
     document.getElementById('inp').textContent='None';};
